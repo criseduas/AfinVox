@@ -2639,7 +2639,7 @@ def GradioSetup():
                                 maximum=100,
                                 step=1,
                                 label=i18n("Save frequency:"),
-                                value=10,
+                                value=100,
                                 interactive=True,
                                 visible=True,
                             )
@@ -2648,7 +2648,7 @@ def GradioSetup():
                                 maximum=50,
                                 step=1,
                                 label="Threshold % for collapse:",
-                                value=25,
+                                value=50,
                                 interactive=True,
                                 visible=False
                             )
@@ -2657,7 +2657,7 @@ def GradioSetup():
                                 maximum=0.99,
                                 step=0.005,
                                 label="Improvement smoothness calculation:",
-                                value=0.975,
+                                value=0.987,
                                 interactive=True,
                                 visible=False
                             )
@@ -2681,17 +2681,17 @@ def GradioSetup():
                                 label=i18n(
                                     "Save a small final model to the 'weights' folder at each save point"
                                 ),
-                                value=True,
+                                value=False,
                                 interactive=True,
                             )
                             if_retrain_collapse20 = gr.Checkbox(
                                 label="Reload from checkpoint before a mode collapse and try training it again",
-                                value=False,
+                                value=True,
                                 interactive=True,
                             )
                             if_stop_on_fit21 = gr.Checkbox(
                                 label="Stop training early if no improvement detected. (Set Training Epochs to something high like 9999)",
-                                value=False,
+                                value=True,
                                 interactive=True,
                             )
                         with gr.Column():
