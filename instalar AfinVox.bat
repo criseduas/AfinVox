@@ -42,6 +42,7 @@ echo Extracting the runtime.zip file...
 powershell -command "& { Add-Type -AssemblyName System.IO.Compression.FileSystem ; [System.IO.Compression.ZipFile]::ExtractToDirectory('runtime.zip', '%principal%') }"
 echo.
 del runtime.zip busybox.exe
+python.exe runtime\Scripts\pip.exe install wget bs4 gin gin_config flask_cors flask
 cls
 echo.
 goto dependenciesFinished
