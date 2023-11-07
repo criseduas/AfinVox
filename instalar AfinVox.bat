@@ -38,7 +38,7 @@ cls
 powershell -command "Invoke-WebRequest -Uri https://huggingface.co/IAHispano/applio/resolve/main/busybox.exe -OutFile busybox.exe"
 busybox.exe wget %URL_EXTRA%/runtime.zip
 echo.
-echo Extracting the runtime.zip file...
+echo extrayendo el runtime...
 powershell -command "& { Add-Type -AssemblyName System.IO.Compression.FileSystem ; [System.IO.Compression.ZipFile]::ExtractToDirectory('runtime.zip', '%principal%') }"
 echo.
 del runtime.zip busybox.exe
