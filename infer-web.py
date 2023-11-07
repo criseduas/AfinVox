@@ -1837,9 +1837,8 @@ else:
 def GradioSetup():
     default_weight = ""
 
-    with gr.Blocks(theme=my_AfinVox, title="AfinVox-RVC-Fork") as app:
-        gr.HTML("<h1> 🍏 AfinVox-RVC-Fork </h1>")
-        gr.HTML("<h3>Discover over 15,000 voice models with our Discord bot — <a href='https://bot.AfinVox.org'>Invite it here!</a></h3>")
+    with gr.Blocks(theme=my_AfinVox, title="AfinVox") as app:
+        gr.HTML("<h1> AfinVox-RVC </h1>")
         with gr.Tabs():
             with gr.TabItem(i18n("Model Inference")):
                 with gr.Row():
