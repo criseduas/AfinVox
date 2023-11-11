@@ -26,7 +26,7 @@ echo.
 echo clonando el repositorio...
 git clone %repoUrl% %repoFolder%
 cd %repoFolder%
-del install_Applio.bat
+del instalar_AfinVox.bat
 del /q *.sh
 echo.
 cls
@@ -35,13 +35,12 @@ echo instalando dependencias...
 echo.
 echo (no compatible con GPUs de intel y AMD): 
 cls
-powershell -command "Invoke-WebRequest -Uri https://huggingface.co/IAHispano/applio/resolve/main/busybox.exe -OutFile busybox.exe"
-busybox.exe wget %URL_EXTRA%/runtime.zip
+curl -LJO "%URL_EXTRA%/runtime.zip"
 echo.
-echo extrayendo el runtime...
+echo Extracting the runtime.zip file...
 powershell -command "& { Add-Type -AssemblyName System.IO.Compression.FileSystem ; [System.IO.Compression.ZipFile]::ExtractToDirectory('runtime.zip', '%principal%') }"
 echo.
-del runtime.zip busybox.exe
+del runtime.zip
 runtime\python.exe runtime\Scripts\pip.exe install wget bs4 gin gin_config flask_cors flask
 cls
 echo.
