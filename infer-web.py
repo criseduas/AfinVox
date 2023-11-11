@@ -2656,7 +2656,7 @@ def GradioSetup():
                                 maximum=0.99,
                                 step=0.005,
                                 label="Improvement smoothness calculation:",
-                                value=0.987,
+                                value=0.99,
                                 interactive=True,
                                 visible=False
                             )
