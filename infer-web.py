@@ -2647,7 +2647,7 @@ def GradioSetup():
                                 maximum=50,
                                 step=1,
                                 label="Threshold % for collapse:",
-                                value=50,
+                                value=25,
                                 interactive=True,
                                 visible=False
                             )
