@@ -2638,7 +2638,7 @@ def GradioSetup():
                                 maximum=100,
                                 step=1,
                                 label=i18n("Save frequency:"),
-                                value=100,
+                                value=0,
                                 interactive=True,
                                 visible=True,
                             )
