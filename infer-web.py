@@ -1858,7 +1858,7 @@ def GradioSetup():
 
     with gr.Blocks(theme=my_applio, title="AfinVox") as app:
         gr.HTML("<h1> AfinVox </h1>")
-        )
+
         with gr.Tabs():
             with gr.TabItem(i18n("Model Inference")):
                 with gr.Row():
