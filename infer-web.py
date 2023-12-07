@@ -46,16 +46,16 @@ from glob import glob1
 import signal
 from signal import SIGTERM
 from assets.i18n.i18n import I18nAuto
-from lib.infer.infer_libs.train.process_ckpt import (
+from lib.modules.train.process_ckpt import (
     change_info,
     extract_small_model,
     merge,
     show_info,
 )
-from lib.infer.modules.uvr5.mdxnet import MDXNetDereverb
-from lib.infer.modules.uvr5.preprocess import AudioPre, AudioPreDeEcho
-from lib.infer.modules.vc.modules import VC
-from lib.infer.modules.vc.utils import *
+from lib.modules.uvr5.mdxnet import MDXNetDereverb
+from lib.modules.uvr5.preprocess import AudioPre, AudioPreDeEcho
+from lib.modules.vc.modules import VC
+from lib.modules.vc.utils import *
 import lib.globals.globals as rvc_globals
 import nltk
 
@@ -66,7 +66,7 @@ import tabs.tts as tts
 import tabs.merge as mergeaudios
 import tabs.processing as processing
 
-from lib.infer.infer_libs.csvutil import CSVutil
+from lib.modules.infer.csvutil import CSVutil
 import time
 import csv
 from shlex import quote as SQuote
@@ -93,7 +93,6 @@ if True == True:
 
     try:
         sock.connect((host, port))
-        logger.info("Starting the Flask server")
         logger.warn(
             f"Something is listening on port {port}; check open connection and restart AfinVox."
         )
@@ -104,17 +103,14 @@ if True == True:
         script_path = os.path.join(now_dir, "lib", "tools", "server.py")
         try:
             subprocess.Popen(f"python {script_path}", shell=True)
-            logger.info("Flask server started!")
         except Exception as e:
             logger.error(f"Failed to start the Flask server")
             logger.error(e)
     except Exception as e:
-        logger.info("Starting the Flask server")
         sock.close()
         script_path = os.path.join(now_dir, "lib", "tools", "server.py")
         try:
             subprocess.Popen(f"python {script_path}", shell=True)
-            logger.info("Flask server started!")
         except Exception as e:
             logger.error("Failed to start the Flask server")
             logger.error(e)
@@ -205,8 +201,8 @@ class ToolButton(gr.Button, gr.components.FormComponent):
         return "button"
 
 
-import lib.infer.infer_libs.uvr5_pack.mdx as mdx
-from lib.infer.modules.uvr5.mdxprocess import (
+import lib.modules.uvr5.mdx as mdx
+from lib.modules.uvr5.mdxprocess import (
     get_model_list,
     get_demucs_model_list,
     id_to_ptm,
@@ -219,8 +215,8 @@ weight_root = os.getenv("weight_root")
 weight_uvr5_root = os.getenv("weight_uvr5_root")
 index_root = os.getenv("index_root")
 datasets_root = "datasets"
-fshift_root = "lib/infer/infer_libs/formantshiftcfg"
-audio_root = "assets/audios"
+fshift_root = "lib/modules/infer/formantshiftcfg"
+audio_root = "assets\\audios"
 audio_others_root = "assets/audios/audio-others"
 sup_audioext = {
     "wav",
@@ -273,37 +269,44 @@ for foldername in os.listdir(os.path.join(now_dir, datasets_root)):
     if os.path.isdir(os.path.join(now_dir, "datasets", foldername)):
         datasets.append(foldername)
 
+
 def get_dataset():
     if len(datasets) > 0:
         return sorted(datasets)[0]
     else:
         return ""
 
-def change_dataset(
-        trainset_dir4
-):
+
+def change_dataset(trainset_dir4):
     return gr.Textbox.update(value=trainset_dir4)
 
-uvr5_names = ["HP2_all_vocals.pth", "HP3_all_vocals.pth", "HP5_only_main_vocal.pth",
-             "VR-DeEchoAggressive.pth", "VR-DeEchoDeReverb.pth", "VR-DeEchoNormal.pth"]
 
-__s = "https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/main/"
+uvr5_names = [
+    "HP2_all_vocals.pth",
+    "HP3_all_vocals.pth",
+    "HP5_only_main_vocal.pth",
+    "VR-DeEchoAggressive.pth",
+    "VR-DeEchoDeReverb.pth",
+    "VR-DeEchoNormal.pth",
+]
+
+__s = "https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/main/uvr5_weights/"
+
 
 def id_(mkey):
     if mkey in uvr5_names:
         model_name, ext = os.path.splitext(mkey)
         mpath = f"{now_dir}/assets/uvr5_weights/{mkey}"
-        if not os.path.exists(f'{now_dir}/assets/uvr5_weights/{mkey}'):
-            print('Downloading model...',end=' ')
-            subprocess.run(
-                ["python", "-m", "wget", "-o", mpath, __s+mkey]
-            )
-            print(f'saved to {mpath}')
+        if not os.path.exists(f"{now_dir}/assets/uvr5_weights/{mkey}"):
+            print("Downloading model...", end=" ")
+            subprocess.run(["python", "-m", "wget", "-o", mpath, __s + mkey])
+            print(f"saved to {mpath}")
             return model_name
         else:
             return model_name
     else:
         return None
+
 
 def update_model_choices(select_value):
     model_ids = get_model_list()
@@ -353,6 +356,7 @@ def get_fshift_presets():
 
     return fshift_presets_list if fshift_presets_list else ""
 
+
 def uvr(
     model_name,
     inp_root,
@@ -366,7 +370,6 @@ def uvr(
     infos = []
     if architecture == "VR":
         try:
-            
             inp_root = inp_root.strip(" ").strip('"').strip("\n").strip('"').strip(" ")
             save_root_vocal = (
                 save_root_vocal.strip(" ").strip('"').strip("\n").strip('"').strip(" ")
@@ -380,7 +383,7 @@ def uvr(
                 return ""
             else:
                 pass
-            
+
             infos.append(
                 i18n("Starting audio conversion... (This might take a moment)")
             )
@@ -688,7 +691,7 @@ def clean():
 
 
 def export_onnx():
-    from lib.infer.modules.onnx.export import export_onnx as eo
+    from lib.modules.onnx.export import export_onnx as eo
 
     eo()
 
@@ -803,18 +806,15 @@ def preprocess_dataset(trainset_dir, exp_dir, sr, n_p, dataset_path):
     f = open("%s/logs/%s/preprocess.log" % (now_dir, exp_dir), "w")
     f.close()
     per = 3.0 if config.is_half else 3.7
-    cmd = (
-        '"%s" lib/infer/modules/train/preprocess.py "%s" %s %s "%s/logs/%s" %s %.1f'
-        % (
-            config.python_cmd,
-            trainset_dir,
-            sr,
-            n_p,
-            now_dir,
-            exp_dir,
-            config.noparallel,
-            per,
-        )
+    cmd = '"%s" lib/modules/train/preprocess.py "%s" %s %s "%s/logs/%s" %s %.1f' % (
+        config.python_cmd,
+        trainset_dir,
+        sr,
+        n_p,
+        now_dir,
+        exp_dir,
+        config.noparallel,
+        per,
     )
     logger.info(cmd)
     p = Popen(cmd, shell=True)  # , stdin=PIPE, stdout=PIPE,stderr=PIPE,cwd=now_dir
@@ -850,7 +850,7 @@ def extract_f0_feature(gpus, n_p, f0method, if_f0, exp_dir, version19, echl):
     if if_f0:
         if f0method != "rmvpe_gpu":
             cmd = (
-                '"%s" lib/infer/modules/train/extract/extract_f0_print.py "%s/logs/%s" %s %s %s'
+                '"%s" lib/modules/train/extract/extract_f0_print.py "%s/logs/%s" %s %s %s'
                 % (config.python_cmd, now_dir, exp_dir, n_p, f0method, RQuote(echl))
             )
             logger.info(cmd)
@@ -873,7 +873,7 @@ def extract_f0_feature(gpus, n_p, f0method, if_f0, exp_dir, version19, echl):
                 ps = []
                 for idx, n_g in enumerate(gpus_rmvpe):
                     cmd = (
-                        '"%s" lib/infer/modules/train/extract/extract_f0_rmvpe.py %s %s %s "%s/logs/%s" %s '
+                        '"%s" lib/modules/train/extract/extract_f0_rmvpe.py %s %s %s "%s/logs/%s" %s '
                         % (
                             config.python_cmd,
                             leng,
@@ -901,7 +901,7 @@ def extract_f0_feature(gpus, n_p, f0method, if_f0, exp_dir, version19, echl):
             else:
                 cmd = (
                     config.python_cmd
-                    + ' lib/infer/modules/train/extract/extract_f0_rmvpe_dml.py "%s/logs/%s" '
+                    + ' lib/modules/train/extract/extract_f0_rmvpe_dml.py "%s/logs/%s" '
                     % (
                         now_dir,
                         exp_dir,
@@ -925,19 +925,11 @@ def extract_f0_feature(gpus, n_p, f0method, if_f0, exp_dir, version19, echl):
             log = f.read()
         logger.info(log)
         yield log
-    ####对不同part分别开多进程
-    """
-    n_part=int(sys.argv[1])
-    i_part=int(sys.argv[2])
-    i_gpu=sys.argv[3]
-    exp_dir=sys.argv[4]
-    os.environ["CUDA_VISIBLE_DEVICES"]=str(i_gpu)
-    """
     leng = len(gpus)
     ps = []
     for idx, n_g in enumerate(gpus):
         cmd = (
-            '"%s" lib/infer/modules/train/extract_feature_print.py %s %s %s %s "%s/logs/%s" %s %s'
+            '"%s" lib/modules/train/extract_feature_print.py %s %s %s %s "%s/logs/%s" %s %s'
             % (
                 config.python_cmd,
                 config.device,
@@ -1076,7 +1068,7 @@ def click_train(
     if_retrain_collapse20,
     if_stop_on_fit21,
     smoothness22,
-    collapse_threshold23
+    collapse_threshold23,
 ):
     CSVutil("lib/csvdb/stop.csv", "w+", "formanting", False)
     # 生成filelist
@@ -1169,7 +1161,7 @@ def click_train(
             )
             f.write("\n")
     cmd = (
-        '"%s" lib/infer/modules/train/train.py -e "%s" -sr %s -f0 %s -bs %s %s -te %s -se %s %s %s -l %s -c %s -sw %s -v %s %s %s'
+        '"%s" lib/modules/train/train.py -e "%s" -sr %s -f0 %s -bs %s %s -te %s -se %s %s %s -l %s -c %s -sw %s -v %s %s %s'
         % (
             config.python_cmd,
             exp_dir1,
@@ -1185,8 +1177,15 @@ def click_train(
             1 if if_cache_gpu17 == True else 0,
             1 if if_save_every_weights18 == True else 0,
             version19,
-            ("-sof %s -sm %s" % (1 if if_stop_on_fit21 == True else 0, smoothness22)) if if_stop_on_fit21 else "",
-            ("-rc %s -ct %s" % (1 if if_retrain_collapse20 == True else 0, collapse_threshold23)) if if_retrain_collapse20 else "",
+            ("-sof %s -sm %s" % (1 if if_stop_on_fit21 == True else 0, smoothness22))
+            if if_stop_on_fit21
+            else "",
+            (
+                "-rc %s -ct %s"
+                % (1 if if_retrain_collapse20 == True else 0, collapse_threshold23)
+            )
+            if if_retrain_collapse20
+            else "",
         )
     )
     logger.info(cmd)
@@ -1201,7 +1200,7 @@ def click_train(
         if not os.path.exists(f"logs/{exp_dir1}/col"):
             break
         with open(f"logs/{exp_dir1}/col") as f:
-            col = f.read().split(',')
+            col = f.read().split(",")
             if colEpoch < int(col[1]):
                 colEpoch = int(col[1])
                 logger.info(f"Epoch to beat {col[1]}")
@@ -1210,10 +1209,14 @@ def click_train(
             batchSize -= 1
         if batchSize < 1:
             break
-        p = Popen(cmd.replace(f"-bs {batch_size12}", f"-bs {batchSize}"), shell=True, cwd=now_dir)
+        p = Popen(
+            cmd.replace(f"-bs {batch_size12}", f"-bs {batchSize}"),
+            shell=True,
+            cwd=now_dir,
+        )
         PID = p.pid
         p.wait()
-        
+
     return (
         i18n("Training is done, check train.log"),
         {"visible": False, "__type__": "update"},
@@ -1371,17 +1374,17 @@ def cli_infer(com):
         CSVutil(
             "lib/csvdb/formanting.csv", "w+", "formanting", DoFormant, Quefrency, Timbre
         )
-    split_audio = True if (com[16] == 1) else False	
-    f0_autotune = True if (com[17] == 1) else False	
+    split_audio = True if (com[16] == 1) else False
+    f0_autotune = True if (com[17] == 1) else False
     minpitch_slider = com[18]
     minpitch_txtbox = minpitch_slider
     maxpitch_slider = com[19]
     maxpitch_txtbox = maxpitch_slider
 
-    print("AfinVox-RVC-Fork Infer-CLI: Starting the inference...")
+    print("AfinVox Infer-CLI: Starting the inference...")
     vc_data = vc.get_vc(model_name, protection_amnt, protect1)
     print(vc_data)
-    print("AfinVox-RVC-Fork Infer-CLI: Performing inference...")
+    print("AfinVox Infer-CLI: Performing inference...")
     conversion_data = vc.vc_single(
         speaker_id,
         source_audio_path,
@@ -1405,11 +1408,9 @@ def cli_infer(com):
         f0_autotune,
     )
     if "Success." in conversion_data[0]:
-        print(
-            "AfinVox-RVC-Fork Infer-CLI: Inference succeeded."
-        )
+        print("AfinVox Infer-CLI: Inference succeeded.")
     else:
-        print("AfinVox-RVC-Fork Infer-CLI: Inference failed. Here's the traceback: ")
+        print("AfinVox Infer-CLI: Inference failed. Here's the traceback: ")
         print(conversion_data[0])
 
 
@@ -1420,12 +1421,12 @@ def cli_pre_process(com):
     sample_rate = com[2]
     num_processes = int(com[3])
 
-    print("AfinVox-RVC-Fork Pre-process: Starting...")
+    print("AfinVox Pre-process: Starting...")
     generator = preprocess_dataset(
         trainset_directory, model_name, sample_rate, num_processes
     )
     execute_generator_function(generator)
-    print("AfinVox-RVC-Fork Pre-process: Finished")
+    print("AfinVox Pre-process: Finished")
 
 
 def cli_extract_feature(com):
@@ -1438,9 +1439,9 @@ def cli_extract_feature(com):
     crepe_hop_length = int(com[5])
     version = com[6]  # v1 or v2
 
-    print("AfinVox-RVC-CLI: Extract Feature Has Pitch: " + str(has_pitch_guidance))
-    print("AfinVox-RVC-CLI: Extract Feature Version: " + str(version))
-    print("AfinVox-RVC-Fork Feature Extraction: Starting...")
+    print("I: Extract Feature Has Pitch: " + str(has_pitch_guidance))
+    print("AfinVox-CLI: Extract Feature Version: " + str(version))
+    print("AfinVox Feature Extraction: Starting...")
     generator = extract_f0_feature(
         gpus,
         num_processes,
@@ -1451,7 +1452,7 @@ def cli_extract_feature(com):
         crepe_hop_length,
     )
     execute_generator_function(generator)
-    print("AfinVox-RVC-Fork Feature Extraction: Finished")
+    print("AfinVox Feature Extraction: Finished")
 
 
 def cli_train(com):
@@ -1468,18 +1469,17 @@ def cli_train(com):
     if_cache_gpu = True if (int(com[9]) == 1) else False
     if_save_every_weight = True if (int(com[10]) == 1) else False
     version = com[11]
-    if_retrain_collapse20 = True if (int(com[12]) == 1) else False	
-    if_stop_on_fit21 = True if (int(com[13]) == 1) else False	
-    smoothness23 = float(com[14]) if com[14] != "" else 0.975 
+    if_retrain_collapse20 = True if (int(com[12]) == 1) else False
+    if_stop_on_fit21 = True if (int(com[13]) == 1) else False
+    smoothness23 = float(com[14]) if com[14] != "" else 0.975
     collapse_threshold22 = int(com[15]) if com[15] != "" else 25
-
 
     pretrained_base = "pretrained/" if version == "v1" else "pretrained_v2/"
 
     g_pretrained_path = "%sf0G%s.pth" % (pretrained_base, sample_rate)
     d_pretrained_path = "%sf0D%s.pth" % (pretrained_base, sample_rate)
 
-    print("AfinVox-RVC-Fork Train-CLI: Training...")
+    print("AfinVox Train-CLI: Training...")
     click_train(
         model_name,
         sample_rate,
@@ -1498,7 +1498,7 @@ def cli_train(com):
         if_retrain_collapse20,
         if_stop_on_fit21,
         smoothness23,
-        collapse_threshold22
+        collapse_threshold22,
     )
 
 
@@ -1506,10 +1506,10 @@ def cli_train_feature(com):
     com = cli_split_command(com)
     model_name = com[0]
     version = com[1]
-    print("AfinVox-RVC-Fork Train Feature Index-CLI: Training... Please wait")
+    print("AfinVox Train Feature Index-CLI: Training... Please wait")
     generator = train_index(model_name, version)
     execute_generator_function(generator)
-    print("AfinVox-RVC-Fork Train Feature Index-CLI: Done!")
+    print("AfinVox Train Feature Index-CLI: Done!")
 
 
 def cli_extract_model(com):
@@ -1524,10 +1524,10 @@ def cli_extract_model(com):
         model_path, save_name, sample_rate, has_pitch_guidance, info, version
     )
     if extract_small_model_process == "Success.":
-        print("AfinVox-RVC-Fork Extract Small Model: Success!")
+        print("AfinVox Extract Small Model: Success!")
     else:
         print(str(extract_small_model_process))
-        print("AfinVox-RVC-Fork Extract Small Model: Failed!")
+        print("AfinVox Extract Small Model: Failed!")
 
 
 def preset_apply(preset, qfer, tmbr):
@@ -1689,7 +1689,7 @@ def cli_navigation_loop():
 
 
 if config.is_cli:
-    print("\n\nAfinVox-RVC-Fork CLI\n")
+    print("\n\nAfinVox CLI\n")
     print(
         "Welcome to the CLI version of RVC. Please read the documentation on README.MD to understand how to use this app.\n"
     )
@@ -1828,7 +1828,6 @@ def save_to_wav2_edited(dropbox):
 
         if os.path.exists(target_path):
             os.remove(target_path)
-            print("Replacing old dropdown file...")
 
         shutil.move(file_path, target_path)
     return
@@ -1840,7 +1839,6 @@ def save_to_wav2(dropbox):
 
     if os.path.exists(target_path):
         os.remove(target_path)
-        print("Replacing old dropdown file...")
 
     shutil.move(file_path, target_path)
     return target_path
@@ -1848,19 +1846,19 @@ def save_to_wav2(dropbox):
 
 import lib.tools.loader_themes as loader_themes
 
-my_AfinVox = loader_themes.load_json()
-if my_AfinVox:
+my_applio = loader_themes.load_json()
+if my_applio:
     pass
 else:
-    my_AfinVox = "JohnSmith9982/small_and_pretty"
+    my_applio = "JohnSmith9982/small_and_pretty"
 
 
 def GradioSetup():
     default_weight = ""
 
-    with gr.Blocks(theme=my_AfinVox, title="AfinVox-RVC-Fork") as app:
+    with gr.Blocks(theme=my_applio, title="AfinVox") as app:
         gr.HTML("<h1> AfinVox </h1>")
-
+        )
         with gr.Tabs():
             with gr.TabItem(i18n("Model Inference")):
                 with gr.Row():
@@ -1991,10 +1989,12 @@ def GradioSetup():
                                 )
 
                                 f0_autotune = gr.Checkbox(
-                                    label="Enable autotune", interactive=True, value=False
+                                    label=i18n("Enable autotune"),
+                                    interactive=True,
+                                    value=False,
                                 )
                                 split_audio = gr.Checkbox(
-                                    label="Split Audio (Better Results)",
+                                    label=i18n("Split Audio (Better Results)"),
                                     interactive=True,
                                 )
 
@@ -2009,7 +2009,6 @@ def GradioSetup():
                                     interactive=True,
                                     visible=False,
                                 )
-                 
 
                                 minpitch_slider = gr.Slider(
                                     label=i18n("Min pitch:"),
@@ -2290,7 +2289,8 @@ def GradioSetup():
                                 value=0,
                             )
                             opt_input = gr.Textbox(
-                                label=i18n("Specify output folder:"), value="assets/audios/audio-outputs"
+                                label=i18n("Specify output folder:"),
+                                value="assets/audios/audio-outputs",
                             )
                         with gr.Column():
                             dir_input = gr.Textbox(
@@ -2417,7 +2417,9 @@ def GradioSetup():
                                         interactive=True,
                                     )
                                     f0_autotune = gr.Checkbox(
-                                        label="Enable autotune", interactive=True, value=False
+                                        label="Enable autotune",
+                                        interactive=True,
+                                        value=False,
                                     )
                                     hop_length = gr.Slider(
                                         minimum=1,
@@ -2538,9 +2540,7 @@ def GradioSetup():
                                 value="",
                             )
                             trainset_dir4.change(
-                                change_dataset,
-                                [trainset_dir4],
-                                [exp_dir1]
+                                change_dataset, [trainset_dir4], [exp_dir1]
                             )
                             dataset_path = gr.Textbox(
                                 label=i18n("Or add your dataset path:"),
@@ -2590,13 +2590,13 @@ def GradioSetup():
                                     "rmvpe_gpu",
                                 ]
                                 if config.dml == False
-                                    else [
-                                        "pm",
-                                        "harvest",
-                                        "dio",
-                                        "rmvpe",
-                                        "rmvpe_gpu",
-                                    ],
+                                else [
+                                    "pm",
+                                    "harvest",
+                                    "dio",
+                                    "rmvpe",
+                                    "rmvpe_gpu",
+                                ],
                                 value="rmvpe_gpu",
                                 interactive=True,
                             )
@@ -2671,16 +2671,16 @@ def GradioSetup():
                                 label="Threshold % for collapse:",
                                 value=25,
                                 interactive=True,
-                                visible=False
+                                visible=False,
                             )
                             smoothness23 = gr.Slider(
                                 minimum=0,
                                 maximum=0.99,
                                 step=0.005,
                                 label="Improvement smoothness calculation:",
-                                value=0.99,
+                                value=0.999,
                                 interactive=True,
-                                visible=False
+                                visible=False,
                             )
 
                         with gr.Row():
@@ -2706,13 +2706,17 @@ def GradioSetup():
                                 interactive=True,
                             )
                             if_retrain_collapse20 = gr.Checkbox(
-                                label="Reload from checkpoint before a mode collapse and try training it again",
+                                label=i18n(
+                                    "Reload from checkpoint before a mode collapse and try training it again"
+                                ),
                                 value=False,
-                                visible=False,
                                 interactive=True,
+                                visible=False
                             )
                             if_stop_on_fit21 = gr.Checkbox(
-                                label="Stop training early if no improvement detected. (Set Training Epochs to something high like 9999)",
+                                label=i18n(
+                                    "Stop training early if no improvement detected"
+                                ),
                                 value=True,
                                 interactive=True,
                             )
@@ -2846,7 +2850,7 @@ def GradioSetup():
                                 if_retrain_collapse20,
                                 if_stop_on_fit21,
                                 smoothness23,
-                                collapse_threshold22
+                                collapse_threshold22,
                             ],
                             [info3, butstop, but3],
                             api_name="train_start",
@@ -3078,7 +3082,7 @@ def GradioRun(app):
             inbrowser=not config.noautoopen,
             server_port=config.listen_port,
             quiet=True,
-            favicon_path="./assets/images/icon.png",
+            favicon_path="./assets/icon.png",
             share=share_gradio_link,
         )
     else:
@@ -3087,7 +3091,7 @@ def GradioRun(app):
             inbrowser=not config.noautoopen,
             server_port=config.listen_port,
             quiet=True,
-            favicon_path="./assets/images/icon.png",
+            favicon_path="./assets/icon.png",
             share=share_gradio_link,
         )
 

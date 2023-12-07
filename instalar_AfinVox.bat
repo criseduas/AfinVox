@@ -12,6 +12,8 @@ set "principal=%cd%\%repoFolder%"
 set "runtime_scripts=%cd%\%repoFolder%\runtime\Scripts"
 set "URL_BASE=https://huggingface.co/lj1995/VoiceConversionWebUI/resolve/main"
 set "URL_EXTRA=https://huggingface.co/IAHispano/applio/resolve/main"
+set "fixesFolder=lib/fixes"
+set "localFixesPy=local_fixes.py"
 
 echo.
 cls
@@ -42,6 +44,7 @@ powershell -command "& { Add-Type -AssemblyName System.IO.Compression.FileSystem
 echo.
 del runtime.zip
 runtime\python.exe runtime\Scripts\pip.exe install wget bs4 gin gin_config flask_cors flask torchvision==0.15.1 --index-url https://download.pytorch.org/whl/cu118
+runtime\python.exe runtime\Scripts\pip.exe install -r %principal%\assets\requirements\requirements.txt --use-deprecated=legacy-resolver
 cls
 echo.
 goto dependenciesFinished
