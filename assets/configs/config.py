@@ -103,7 +103,7 @@ class Config:
             self.noparallel,
             self.noautoopen,
             self.paperspace,
-            self.is_cli,
+            self.cli,
             self.grtheme,
             self.dml,
         ) = cmd_opts
@@ -128,7 +128,7 @@ class Config:
             help="Note that this argument just shares a gradio link for the web UI. Thus can be used on other non-local CLI systems.",
         )
         parser.add_argument(
-            "--is_cli",
+            "--cli",
             action="store_true",
             help="Use the CLI instead of setting up a gradio UI. This flag will launch an RVC text interface where you can execute functions from infer-web.py!",
         )
@@ -152,7 +152,7 @@ class Config:
             cmd_opts.noparallel,
             cmd_opts.noautoopen,
             cmd_opts.paperspace,
-            cmd_opts.is_cli,
+            cmd_opts.cli,
             cmd_opts.theme,
             cmd_opts.dml,
         )

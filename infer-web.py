@@ -13,7 +13,7 @@ import threading
 from assets.configs.config import Config
 import lib.globals.globals as rvc_globals
 
-import lib.tools.model_fetcher as model_fetcher
+import lib.tools.modelFetcher as modelFetcher
 import math as math
 import ffmpeg as ffmpeg
 import traceback
@@ -28,6 +28,7 @@ import socket
 import requests
 import subprocess
 
+logging.getLogger('requests').setLevel(logging.CRITICAL)
 logging.getLogger("faiss").setLevel(logging.WARNING)
 import faiss
 import gradio as gr
@@ -84,7 +85,7 @@ shutil.rmtree(tmp, ignore_errors=True)
 os.makedirs(tmp, exist_ok=True)
 
 # Start the download server
-if True == True:
+if True == True: # Shutdown trigger
     host = "localhost"
     port = 8000
 
@@ -1439,7 +1440,7 @@ def cli_extract_feature(com):
     crepe_hop_length = int(com[5])
     version = com[6]  # v1 or v2
 
-    print("I: Extract Feature Has Pitch: " + str(has_pitch_guidance))
+    print("AfinVox-CLI: Extract Feature Has Pitch: " + str(has_pitch_guidance))
     print("AfinVox-CLI: Extract Feature Version: " + str(version))
     print("AfinVox Feature Extraction: Starting...")
     generator = extract_f0_feature(
@@ -1688,7 +1689,7 @@ def cli_navigation_loop():
             print(traceback.format_exc())
 
 
-if config.is_cli:
+if config.cli:
     print("\n\nAfinVox CLI\n")
     print(
         "Welcome to the CLI version of RVC. Please read the documentation on README.MD to understand how to use this app.\n"
@@ -1844,9 +1845,9 @@ def save_to_wav2(dropbox):
     return target_path
 
 
-import lib.tools.loader_themes as loader_themes
+import lib.tools.loadThemes as loadThemes
 
-my_applio = loader_themes.load_json()
+my_applio = loadThemes.load_json()
 if my_applio:
     pass
 else:
@@ -1857,8 +1858,7 @@ def GradioSetup():
     default_weight = ""
 
     with gr.Blocks(theme=my_applio, title="AfinVox") as app:
-        gr.HTML("<h1> AfinVox </h1>")
-
+        gr.HTML("<h1> 🍏 AfinVox </h1>")
         with gr.Tabs():
             with gr.TabItem(i18n("Model Inference")):
                 with gr.Row():
@@ -2662,7 +2662,7 @@ def GradioSetup():
                                 label=i18n("Save frequency:"),
                                 value=0,
                                 interactive=True,
-                                visible=True,
+                                visible=False,
                             )
                             collapse_threshold22 = gr.Slider(
                                 minimum=1,
@@ -2702,7 +2702,7 @@ def GradioSetup():
                                 label=i18n(
                                     "Save a small final model to the 'weights' folder at each save point"
                                 ),
-                                value=False,
+                                value=True,
                                 interactive=True,
                             )
                             if_retrain_collapse20 = gr.Checkbox(
@@ -2711,7 +2711,7 @@ def GradioSetup():
                                 ),
                                 value=False,
                                 interactive=True,
-                                visible=False
+                                visible=False,
                             )
                             if_stop_on_fit21 = gr.Checkbox(
                                 label=i18n(
@@ -3040,13 +3040,13 @@ def GradioSetup():
                             interactive=True,
                         )
                         themes_select = gr.Dropdown(
-                            loader_themes.get_list(),
-                            value=loader_themes.read_json(),
+                            loadThemes.get_list(),
+                            value=loadThemes.read_json(),
                             label=i18n("Select Theme:"),
                             visible=True,
                         )
                         themes_select.change(
-                            fn=loader_themes.select_theme,
+                            fn=loadThemes.select_theme,
                             inputs=themes_select,
                             outputs=[],
                         )
