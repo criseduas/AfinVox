@@ -43,7 +43,8 @@ echo Extracting the runtime.zip file...
 powershell -command "& { Add-Type -AssemblyName System.IO.Compression.FileSystem ; [System.IO.Compression.ZipFile]::ExtractToDirectory('runtime.zip', '%principal%') }"
 echo.
 del runtime.zip
-runtime\python.exe runtime\Scripts\pip.exe install wget bs4 gin gin_config flask_cors flask torchvision==0.15.1 --index-url https://download.pytorch.org/whl/cu118
+runtime\python.exe runtime\Scripts\pip.exe install --upgrade setuptools
+runtime\python.exe runtime\Scripts\pip.exe install wget bs4 flask_cors flask torchvision==0.15.1 --index-url https://download.pytorch.org/whl/cu118
 runtime\python.exe runtime\Scripts\pip.exe install -r %principal%\assets\requirements\requirements.txt --use-deprecated=legacy-resolver
 cls
 echo.
