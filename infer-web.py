@@ -1858,7 +1858,7 @@ def GradioSetup():
     default_weight = ""
 
     with gr.Blocks(theme=my_applio, title="AfinVox") as app:
-        gr.HTML("<h1> 🍏 AfinVox </h1>")
+        gr.HTML("<h1> AfinVox </h1>")
         with gr.Tabs():
             with gr.TabItem(i18n("Model Inference")):
                 with gr.Row():
@@ -2499,19 +2499,21 @@ def GradioSetup():
                                 label=i18n("Whether the model has pitch guidance."),
                                 value=True,
                                 interactive=True,
+                            visible=False,
                             )
                         sr2 = gr.Radio(
                             label=i18n("Target sample rate:"),
                             choices=["40k", "48k", "32k"],
                             value="40k",
                             interactive=True,
-                        )
+                            visible=False,
+                            )
                         version19 = gr.Radio(
                             label=i18n("Version:"),
                             choices=["v1", "v2"],
                             value="v2",
                             interactive=True,
-                            visible=True,
+                            visible=False,
                         )
 
                         with gr.Column():
@@ -2599,6 +2601,7 @@ def GradioSetup():
                                 ],
                                 value="rmvpe_gpu",
                                 interactive=True,
+                                visible=False,
                             )
                             hop_length = gr.Slider(
                                 minimum=1,
@@ -2607,8 +2610,9 @@ def GradioSetup():
                                 label=i18n(
                                     "Hop Length (lower hop lengths take more time to infer but are more pitch accurate):"
                                 ),
-                                value=32,
+                                value=64,
                                 interactive=True,
+                                visible=False,
                             )
 
                     with gr.Row():
@@ -2678,7 +2682,7 @@ def GradioSetup():
                                 maximum=0.99,
                                 step=0.005,
                                 label="Improvement smoothness calculation:",
-                                value=0.999,
+                                value=0.99,
                                 interactive=True,
                                 visible=False,
                             )
@@ -2690,6 +2694,7 @@ def GradioSetup():
                                 ),
                                 value=True,
                                 interactive=True,
+                                visible=False,
                             )
                             if_cache_gpu17 = gr.Checkbox(
                                 label=i18n(
@@ -2704,6 +2709,7 @@ def GradioSetup():
                                 ),
                                 value=True,
                                 interactive=True,
+                                visible=False,
                             )
                             if_retrain_collapse20 = gr.Checkbox(
                                 label=i18n(
